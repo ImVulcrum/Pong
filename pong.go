@@ -51,25 +51,29 @@ func main() {
 	gfx.SetzeFont("pong.ttf", 50)
 
 	/*
-	   for start != true {
-	       for i < list_of_sliders.len{
-	           if mouce_on_slider(global_mouce_cords, list_of_sliders[i].getcords()) == true and global_mouce_is_pressed == true{
-	               for global_mouce_is_pressed == true {
-	                   list_of_sliders[i].redraw(global_mouce_cords)
-	               }
-	           }
-	       }
-	   }
+		pong.go:
 
-	   type slider struct
-	       x (upper right corner)
-	       y (upper right corner)
-	       x_box (upper right corner of box)
-	       y_box (upper right corner of box)
-	       lenght (in pixels)
-	       max_value (in numbers)
-	       default_value (in numbers)
-	       value (calc: (y_box - y) / lenght * max_value) (in number)
+		for start != true {
+			for i < list_of_sliders.len{
+				if mouce_on_slider(global_mouce_cords, list_of_sliders[i].getcords()) == true and global_mouce_is_pressed == true{
+					for global_mouce_is_pressed == true {
+						list_of_sliders[i].redraw(global_mouce_cords)
+					}
+				}
+			}
+		}
+
+		slider_impl.go:
+
+		type slider struct
+			x (upper right corner)
+			y (upper right corner)
+			x_box (upper right corner of box)
+			y_box (upper right corner of box)
+			lenght (in pixels)
+			max_value (in numbers)
+			default_value (in numbers)
+			value (calc: (y_box - y) / lenght * max_value) (in number)
 
 	*/
 
