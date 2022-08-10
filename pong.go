@@ -20,20 +20,20 @@ var rprssd uint8 = 0
 
 func main() {
 	//starting variables
-	var starting_randomizer float32 = 2 //the higher the value the higher the starting randomness of the ball
-	var tail_len uint8 = 240            //increases speed when set to 0
-	var speed_multipl float32 = 2       //the higher the value the higher the speed of the ball and the lower the fps
-	var waiting_time int = 0            //reduces speed when increased
-	var paddle_len uint16 = 150         //the higher the value the longer the paddles (easier)
-	var paddle_speed uint16 = 2         //the higher the value the faster the movement of the paddles (easier)
-	var paddle_wait_time int = 1        //the higher the value the slower the paddles
-	var y_randomness float32 = 1        //the maximum deviation of the slope (m) on colission with y axis (paddles)
-	var x_randomness float32 = 0.5      //the maximum deviation of the slope (m) on colission with x axis (top and bottom)
-	var reset_randomness float32 = 1    //the maximum deviation of the slope (m) if the deviation is higher than this value, slope will be randomized to maximal [max_randomess]
-	var max_randomess float32 = 1.5     //highest possible value for the slope (m) after reset
-	var w_x uint16 = 950                //window lenght --> the bigger the window the slower the ball speed
-	var w_y uint16 = 680                //window hight --> the bigger the window the slower the ball speed
-	var win_count = 10                  //indicates up to how many points are played
+	var starting_randomizer float32 = 2 	//the higher the value the higher the starting randomness of the ball
+	var tail_len uint8 = 240            	//increases speed when set to 0
+	var speed_multipl float32 = 2       	//the higher the value the higher the speed of the ball and the lower the fps
+	var waiting_time int = 0            	//reduces speed when increased
+	var paddle_len uint16 = 150         	//the higher the value the longer the paddles (easier)
+	var paddle_speed uint16 = 2         	//the higher the value the faster the movement of the paddles (easier)
+	var paddle_wait_time int = 1        	//the higher the value the slower the paddles
+	var y_randomness float32 = 1        	//the maximum deviation of the slope (m) on colission with y axis (paddles)
+	var x_randomness float32 = 0.5      	//the maximum deviation of the slope (m) on colission with x axis (top and bottom)
+	var reset_randomness float32 = 1    	//the maximum deviation of the slope (m) if the deviation is higher than this value, slope will be randomized to maximal [max_randomess]
+	var max_randomess float32 = 1.5     	//highest possible value for the slope (m) after reset
+	var w_x uint16 = 950                	//window lenght --> the bigger the window the slower the ball speed
+	var w_y uint16 = 680                	//window hight --> the bigger the window the slower the ball speed
+	var win_count = 10                  	//indicates up to how many points are played
 
 	//starting constants
 	var c_x float32
