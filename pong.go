@@ -19,6 +19,21 @@ var rkn uint16 = 0
 var rprssd uint8 = 0
 
 func main() {
+	
+	var w_x uint16 = 950                	//window lenght --> the bigger the window the slower the ball speed
+	var w_y uint16 = 680                	//window hight --> the bigger the window the slower the ball speed
+	
+	gfx.Fenster(w_x, w_y)
+
+	//var s_starting_randomizer *Sliders.Slider = Sliders.Draw(50, 30, 300, 15, 5, 2)
+	//var s_tail_len Sliders.Slider = *Sliders.Draw(50, 70, 300, 15, 255, 242)
+	//var s_speed_multipl Sliders.Slider = *Sliders.Draw(50, 110, 300, 15, 8, 2)
+	//var slist []*Sliders.Slider = s_starting_randomizer
+
+	//gfx.TastaturLesen1()
+	
+	//fmt.Println(s_starting_randomizer, s_tail_len, s_speed_multipl)
+
 	//starting variables
 	var starting_randomizer float32 = 2 	//the higher the value the higher the starting randomness of the ball
 	var tail_len uint8 = 240            	//increases speed when set to 0
@@ -31,8 +46,7 @@ func main() {
 	var x_randomness float32 = 0.5      	//the maximum deviation of the slope (m) on colission with x axis (top and bottom)
 	var reset_randomness float32 = 1    	//the maximum deviation of the slope (m) if the deviation is higher than this value, slope will be randomized to maximal [max_randomess]
 	var max_randomess float32 = 1.5     	//highest possible value for the slope (m) after reset
-	var w_x uint16 = 950                	//window lenght --> the bigger the window the slower the ball speed
-	var w_y uint16 = 680                	//window hight --> the bigger the window the slower the ball speed
+	
 	var win_count = 10                  	//indicates up to how many points are played
 
 	//starting constants
@@ -47,7 +61,7 @@ func main() {
 	var rcount int
 	var first bool = true
 
-	gfx.Fenster(w_x, 750)
+	
 	gfx.SetzeFont("pong.ttf", 50)
 
 	/*
@@ -164,6 +178,8 @@ func main() {
 		}
 	}
 }
+
+//func Mouse(slist)
 
 func initialize(d float32, w_x uint16, w_y uint16, starting_randomizer float32, speed_multipl float32, tail_len uint8) (float32, float32, float32, float32, float32, float32, float32) {
 	gfx.Transparenz(0)
