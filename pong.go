@@ -64,6 +64,9 @@ func main() {
 		}
 	}
 
+	b1.Click()
+	time.Sleep(time.Duration(350) * time.Millisecond)
+
 	//starting variables
 	var starting_randomizer float32 = list[0].Value	
 	var tail_len uint8 = uint8(math.Round(float64(list[1].Value)))
@@ -187,7 +190,7 @@ func Mouse(list [12]sliders.Slider, b1 buttons.Button)  () {
 	var ms_prssd int8
 	for !start{
 		ms_bttn, ms_prssd, m_x, m_y = gfx.MausLesen1()
-		
+
 		if ms_bttn == 1 && ms_prssd == 1 || ms_bttn == 1 && ms_prssd == 0 	{
 			ms_x = m_x
 			if active == -1 {
