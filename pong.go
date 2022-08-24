@@ -1,11 +1,14 @@
 package main
 
 import (
+	"buttons"
 	"fmt"
 	gfx "gfx2"
 	"math"
 	"math/rand"
+	"sliders"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -17,6 +20,10 @@ var lkn uint16 = 0
 var lprssd uint8 = 0
 var rkn uint16 = 0
 var rprssd uint8 = 0
+var ms_x uint16 = 0
+var active int = -1
+var m sync.Mutex
+var start bool = false
 
 func main() {
 	
@@ -24,30 +31,52 @@ func main() {
 	var w_y uint16 = 680                	//window hight --> the bigger the window the slower the ball speed
 	
 	gfx.Fenster(w_x, w_y)
+	gfx.SetzeFont("pong.ttf", 20)
 
-	//var s_starting_randomizer *Sliders.Slider = Sliders.Draw(50, 30, 300, 15, 5, 2)
-	//var s_tail_len Sliders.Slider = *Sliders.Draw(50, 70, 300, 15, 255, 242)
-	//var s_speed_multipl Sliders.Slider = *Sliders.Draw(50, 110, 300, 15, 8, 2)
-	//var slist []*Sliders.Slider = s_starting_randomizer
+	gfx.Stiftfarbe(0, 0, 0)
+	gfx.Vollrechteck(0, 0, w_x, w_y)
 
-	//gfx.TastaturLesen1()
+	var s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12 sliders.Slider = *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New()
+	var b1 buttons.Button = *buttons.New()
+	b1.Draw(50, 600, 70, 30, "Start")
+
+	list := [12]sliders.Slider{s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12}
+	list[0].Draw(50, 70, 300, 20, 10, 6, 2, "Starting Randomizer")			//the higher the value the higher the starting randomness of the ball
+	list[1].Draw(50, 110, 300, 20, 10, 255, 240, "Tail Length")				//increases speed when set to 0
+	list[2].Draw(50, 150, 300, 20, 10, 16, 2, "Speed Multiplier")			//the higher the value the higher the speed of the ball and the lower the fps
+	list[3].Draw(50, 190, 300, 20, 10, 10, 0, "Waiting Time")				//reduces speed when increased
+	list[4].Draw(50, 230, 300, 20, 10, 400, 150, "Paddle Length")			//the higher the value the longer the paddles (easier)
+	list[5].Draw(50, 270, 300, 20, 10, 16, 2, "Paddle Speed")				//the higher the value the faster the movement of the paddles (easier)
+	list[6].Draw(50, 310, 300, 20, 10, 10, 1, "Paddle Wait Time")			//the higher the value the slower the paddles
+	list[7].Draw(50, 350, 300, 20, 10, 5, 1, "Y Randomness")				//the maximum deviation of the slope (m) on colission with y axis (paddles)
+	list[8].Draw(50, 390, 300, 20, 10, 5, 0.5, "X Randomness")				//the maximum deviation of the slope (m) on colission with x axis (top and bottom)
+	list[9].Draw(50, 430, 300, 20, 10, 5, 1, "Reset Randomness")			//the maximum deviation of the slope (m) if the deviation is higher than this value, slope will be randomized to maximal [max_randomess]
+	list[10].Draw(50, 470, 300, 20, 10, 5, 1.5, "Max Randomness")			//highest possible value for the slope (m) after reset
+	list[11].Draw(50, 510, 300, 20, 10, 100, 10, "Win Count")				//indicates up to how many points are played
 	
-	//fmt.Println(s_starting_randomizer, s_tail_len, s_speed_multipl)
+	go Mouse(list, b1)
+
+	for !start {
+		if active != -1 {
+			m.Lock()
+			list[active].Redraw(ms_x)
+			m.Unlock()
+		}
+	}
 
 	//starting variables
-	var starting_randomizer float32 = 2 	//the higher the value the higher the starting randomness of the ball
-	var tail_len uint8 = 240            	//increases speed when set to 0
-	var speed_multipl float32 = 2       	//the higher the value the higher the speed of the ball and the lower the fps
-	var waiting_time int = 0            	//reduces speed when increased
-	var paddle_len uint16 = 150         	//the higher the value the longer the paddles (easier)
-	var paddle_speed uint16 = 2         	//the higher the value the faster the movement of the paddles (easier)
-	var paddle_wait_time int = 1        	//the higher the value the slower the paddles
-	var y_randomness float32 = 1        	//the maximum deviation of the slope (m) on colission with y axis (paddles)
-	var x_randomness float32 = 0.5      	//the maximum deviation of the slope (m) on colission with x axis (top and bottom)
-	var reset_randomness float32 = 1    	//the maximum deviation of the slope (m) if the deviation is higher than this value, slope will be randomized to maximal [max_randomess]
-	var max_randomess float32 = 1.5     	//highest possible value for the slope (m) after reset
-	
-	var win_count = 10                  	//indicates up to how many points are played
+	var starting_randomizer float32 = list[0].Value	
+	var tail_len uint8 = uint8(math.Round(float64(list[1].Value)))
+	var speed_multipl float32 = list[2].Value       	
+	var waiting_time int = int(math.Round(float64(list[3].Value)))      	
+	var paddle_len uint16 = uint16(math.Round(float64(list[4].Value)))        	
+	var paddle_speed uint16 = uint16(math.Round(float64(list[5].Value)))          	
+	var paddle_wait_time int = int(math.Round(float64(list[6].Value)))  	
+	var y_randomness float32 = list[7].Value       	
+	var x_randomness float32 = list[8].Value       	
+	var reset_randomness float32 = list[9].Value     	
+	var max_randomess float32 = list[10].Value      	
+	var win_count int = int(math.Round(float64(list[11].Value)))                 	
 
 	//starting constants
 	var c_x float32
@@ -61,35 +90,7 @@ func main() {
 	var rcount int
 	var first bool = true
 
-	
 	gfx.SetzeFont("pong.ttf", 50)
-
-	/*
-		pong.go:
-
-		for start != true {
-			for i < list_of_sliders.len{
-				if mouce_on_slider(global_mouce_cords, list_of_sliders[i].getcords()) == true and global_mouce_is_pressed == true{
-					for global_mouce_is_pressed == true {
-						list_of_sliders[i].redraw(global_mouce_cords)
-					}
-				}
-			}
-		}
-
-		slider_impl.go:
-
-		type slider struct
-			x (upper right corner)
-			y (upper right corner)
-			x_box (upper right corner of box)
-			y_box (upper right corner of box)
-			lenght (in pixels)
-			max_value (in numbers)
-			default_value (in numbers)
-			value (calc: (y_box - y) / lenght * max_value) (in number)
-
-	*/
 
 	//initializing block
 	fmt.Println("initialize...")
@@ -179,7 +180,35 @@ func main() {
 	}
 }
 
-//func Mouse(slist)
+func Mouse(list [12]sliders.Slider, b1 buttons.Button)  () {
+	var m_x uint16
+	var m_y uint16
+	var ms_bttn uint8
+	var ms_prssd int8
+	for !start{
+		ms_bttn, ms_prssd, m_x, m_y = gfx.MausLesen1()
+		if ms_bttn == 1 && ms_prssd == 1 || ms_bttn == 1 && ms_prssd == 0 	{
+			ms_x = m_x
+			if active == -1 {
+				if m_x >= b1.X && m_x <= b1.X + b1.Length && m_y >= b1.Y && m_y <= b1.Y + b1.Height {
+					start = true
+				}	else {
+						for i := 0; i < len(list); i++ {
+							if m_x >= list[i].X && m_x <= list[i].X + list[i].Length && m_y >= list[i].Y && m_y <= list[i].Y + list[i].Height {
+								m.Lock()
+								active = i
+								m.Unlock()
+							}			
+						}
+					}
+			}
+		}	else {
+				m.Lock()
+				active = -1
+				m.Unlock()
+			}
+	}
+}
 
 func initialize(d float32, w_x uint16, w_y uint16, starting_randomizer float32, speed_multipl float32, tail_len uint8) (float32, float32, float32, float32, float32, float32, float32) {
 	gfx.Transparenz(0)
