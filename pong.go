@@ -30,11 +30,11 @@ func main() {
 	var w_x uint16 = 950                	//window lenght --> the bigger the window the slower the ball speed
 	var w_y uint16 = 680                	//window hight --> the bigger the window the slower the ball speed
 	
-	gfx.Fenster(w_x, w_y)
+	gfx.Fenster(w_x, w_y+70)
 	gfx.SetzeFont("pong.ttf", 20)
 
 	gfx.Stiftfarbe(0, 0, 0)
-	gfx.Vollrechteck(0, 0, w_x, w_y)
+	gfx.Vollrechteck(0, 0, w_x, w_y+70)
 
 	var s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12 sliders.Slider = *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New()
 	var b1 buttons.Button = *buttons.New()
@@ -187,6 +187,7 @@ func Mouse(list [12]sliders.Slider, b1 buttons.Button)  () {
 	var ms_prssd int8
 	for !start{
 		ms_bttn, ms_prssd, m_x, m_y = gfx.MausLesen1()
+		
 		if ms_bttn == 1 && ms_prssd == 1 || ms_bttn == 1 && ms_prssd == 0 	{
 			ms_x = m_x
 			if active == -1 {
