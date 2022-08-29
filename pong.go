@@ -148,41 +148,46 @@ func main() {
 		gfx.UpdateAn()
 
 		time.Sleep(time.Duration(waiting_time) * time.Millisecond)
-
+        
+          //check win
 		if lcount >= win_count {
 			win("Player 1", w_x, w_y)
 		} else if rcount >= win_count {
 			win("Player 2", w_x, w_y)
 		}
-
+          //check firsthit 
 		if first && waiting_time != 0 {
 			time.Sleep(time.Duration(2*waiting_time) * time.Millisecond)
 		} else if first {
 			time.Sleep(time.Duration(2) * time.Millisecond)
 		}
-
+          //check if ball is left outside the field
 		if c_x <= 0 && c_x <= x_temp {
 			d = speed_multipl
 			c_x, c_y, m, n, d, _, _ = initialize(d, w_x, w_y, starting_randomizer, speed_multipl, tail_len)
 			rcount = rcount + 1
 			first = true
+          //check if ball is right outside the field
 		} else if c_x >= float32(w_x) && c_x >= x_temp {
 			d = -speed_multipl
 			c_x, c_y, m, n, d, _, _ = initialize(d, w_x, w_y, starting_randomizer, speed_multipl, tail_len)
 			lcount = lcount + 1
 			first = true
-		} else if c_x <= 20 && c_x <= x_temp && int(w_y)-int(math.Round(float64(c_y))) >= int(left_paddle_y)-8 && w_y-uint16(math.Round(float64(c_y))) <= left_paddle_y+paddle_len+8 {
+          //bounce left paddle
+		} else if c_x -5 <= 20 && c_x <= x_temp && int(w_y)-int(math.Round(float64(c_y))) >= int(left_paddle_y)-8 && w_y-uint16(math.Round(float64(c_y))) <= left_paddle_y+paddle_len+8 {
 			m, n, d = y_bounce(m, n, d, c_x, c_y, speed_multipl, y_randomness, max_randomess, reset_randomness)
 			first = false
-		} else if c_x >= float32(w_x)-20 && c_x >= x_temp && int(w_y)-int(math.Round(float64(c_y))) >= int(right_paddle_y)-8 && w_y-uint16(math.Round(float64(c_y))) <= right_paddle_y+paddle_len+8 {
+          //bounce right paddle
+		} else if c_x +5 >= float32(w_x)-20 && c_x >= x_temp && int(w_y)-int(math.Round(float64(c_y))) >= int(right_paddle_y)-8 && w_y-uint16(math.Round(float64(c_y))) <= right_paddle_y+paddle_len+8 {
 			m, n, d = y_bounce(m, n, d, c_x, c_y, speed_multipl, y_randomness, max_randomess, reset_randomness)
 			first = false
+          //bounce up/down
 		} else if c_y <= 10 && c_y <= y_temp || c_y >= float32(w_y-10) && c_y >= y_temp {
 			m, n, d = x_bounce(m, n, d, c_x, c_y, x_randomness, max_randomess, reset_randomness)
 		}
 	}
 }
-
+//function to read the mouse - only relevant for the settings menu
 func Mouse(list [12]sliders.Slider, b1 buttons.Button)  () {
 	var m_x uint16
 	var m_y uint16
@@ -213,7 +218,7 @@ func Mouse(list [12]sliders.Slider, b1 buttons.Button)  () {
 			}
 	}
 }
-
+//initializing function is executd every time the ball gets out of bounds
 func initialize(d float32, w_x uint16, w_y uint16, starting_randomizer float32, speed_multipl float32, tail_len uint8) (float32, float32, float32, float32, float32, float32, float32) {
 	gfx.Transparenz(0)
 	gfx.Stiftfarbe(255, 255, 255)
@@ -248,7 +253,7 @@ func initialize(d float32, w_x uint16, w_y uint16, starting_randomizer float32, 
 
 	return c_x, c_y, m, n, d, x_temp, y_temp
 }
-
+//function is relevant for the calculation of the exact position of the pont counter
 func give_digits_of_value(value int) int {
 	count := 0
 	for value > 0 {
@@ -260,7 +265,7 @@ func give_digits_of_value(value int) int {
 	}
 	return count
 }
-
+//function will be executed when the win_count == lcount or rcount
 func win(winner string, w_x uint16, w_y uint16) {
 	var r uint8
 	var g uint8
@@ -285,7 +290,7 @@ func win(winner string, w_x uint16, w_y uint16) {
 		time.Sleep(time.Duration(200) * time.Millisecond)
 	}
 }
-
+//function is responsible for reading the keyboard which means it is also responsible for controlling the paddles
 func read_keyboard() {
 	var kn uint16
 	var prssd uint8
@@ -300,7 +305,7 @@ func read_keyboard() {
 		}
 	}
 }
-
+//controlling the left paddle
 func left_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16, paddle_wait_time int) {
 	left_paddle_x = 10
 
@@ -328,7 +333,7 @@ func left_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16,
 		}
 	}
 }
-
+//controlling the right paddle
 func right_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16, paddle_wait_time int) {
 	right_paddle_x = w_x - 20
 
@@ -356,7 +361,7 @@ func right_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16
 		}
 	}
 }
-
+//function to calculated the ext cords
 func exe_lin_func(m float32, n float32, d float32, c_x float32, c_y float32, w_x uint16, w_y uint16, tail_len uint8) (n_x float32, n_y float32) {
 	n_x = c_x + d
 	n_y = m*n_x + n
