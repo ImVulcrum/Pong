@@ -406,3 +406,11 @@ func y_bounce(m float32, n float32, d float32, c_x float32, c_y float32, speed_m
 
 	return n_m, n_n, n_d
 }
+
+
+//feature:  -Ball wird schneller mit zunehmenden bounces        Slider Geschwindigkeitzunahme in Prozent
+//          -Ball kann angeschnitten werden                     Slider Anschneidungsstärke in Prozent
+
+//bug:      -Slider zeigen immer in float --> neuer Parameter zum Konvertieren in int
+//          -Ball ist unterschiedlich schnell wenn sich die Funktion in y Richtung schneller bewegt als in x Richtung (m < 1 && m > -1)
+//          -Ballgeschwindigkeit ist von der Stärke des Systems abhängig auf dem pong ausgeführt wird --> daher main loop muss zeitabhängig sein
