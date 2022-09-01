@@ -41,18 +41,18 @@ func main() {
 	b1.Draw(50, 600, 70, 30, "Start")
 
 	list := [12]sliders.Slider{s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12}
-	list[0].Draw(50, 70, 300, 20, 10, 6, 2, "Starting Randomizer")			//the higher the value the higher the starting randomness of the ball
-	list[1].Draw(50, 110, 300, 20, 10, 255, 240, "Tail Length")				//increases speed when set to 0
-	list[2].Draw(50, 150, 300, 20, 10, 16, 2, "Speed Multiplier")			//the higher the value the higher the speed of the ball and the lower the fps
-	list[3].Draw(50, 190, 300, 20, 10, 10, 0, "Waiting Time")				//reduces speed when increased
-	list[4].Draw(50, 230, 300, 20, 10, 400, 150, "Paddle Length")			//the higher the value the longer the paddles (easier)
-	list[5].Draw(50, 270, 300, 20, 10, 16, 2, "Paddle Speed")				//the higher the value the faster the movement of the paddles (easier)
-	list[6].Draw(50, 310, 300, 20, 10, 10, 1, "Paddle Wait Time")			//the higher the value the slower the paddles
-	list[7].Draw(50, 350, 300, 20, 10, 5, 1, "Y Randomness")				//the maximum deviation of the slope (m) on colission with y axis (paddles)
-	list[8].Draw(50, 390, 300, 20, 10, 5, 0.5, "X Randomness")				//the maximum deviation of the slope (m) on colission with x axis (top and bottom)
-	list[9].Draw(50, 430, 300, 20, 10, 5, 1, "Reset Randomness")			//the maximum deviation of the slope (m) if the deviation is higher than this value, slope will be randomized to maximal [max_randomess]
-	list[10].Draw(50, 470, 300, 20, 10, 5, 1.5, "Max Randomness")			//highest possible value for the slope (m) after reset
-	list[11].Draw(50, 510, 300, 20, 10, 100, 10, "Win Count")				//indicates up to how many points are played
+	list[0].Draw(50, 70, 300, 20, 10, 6, 2, "Starting Randomizer", false)			//the higher the value the higher the starting randomness of the ball
+	list[1].Draw(50, 110, 300, 20, 10, 255, 240, "Tail Length", true)				//increases speed when set to 0
+	list[2].Draw(50, 150, 300, 20, 10, 16, 2, "Speed Multiplier", false)			//the higher the value the higher the speed of the ball and the lower the fps
+	list[3].Draw(50, 190, 300, 20, 10, 10, 0, "Waiting Time", true)				//reduces speed when increased
+	list[4].Draw(50, 230, 300, 20, 10, 400, 150, "Paddle Length", true)			//the higher the value the longer the paddles (easier)
+	list[5].Draw(50, 270, 300, 20, 10, 16, 2, "Paddle Speed", true)				//the higher the value the faster the movement of the paddles (easier)
+	list[6].Draw(50, 310, 300, 20, 10, 10, 1, "Paddle Wait Time", true)			//the higher the value the slower the paddles
+	list[7].Draw(50, 350, 300, 20, 10, 5, 1, "Y Randomness", false)				//the maximum deviation of the slope (m) on colission with y axis (paddles)
+	list[8].Draw(50, 390, 300, 20, 10, 5, 0.5, "X Randomness", false)				//the maximum deviation of the slope (m) on colission with x axis (top and bottom)
+	list[9].Draw(50, 430, 300, 20, 10, 5, 1, "Reset Randomness", false)			//the maximum deviation of the slope (m) if the deviation is higher than this value, slope will be randomized to maximal [max_randomess]
+	list[10].Draw(50, 470, 300, 20, 10, 5, 1.5, "Max Randomness", false)			//highest possible value for the slope (m) after reset
+	list[11].Draw(50, 510, 300, 20, 10, 100, 10, "Win Count", true)				//indicates up to how many points are played
 	
 	go Mouse(list, b1)
 
