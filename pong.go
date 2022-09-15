@@ -84,9 +84,8 @@ func main() {
 	//starting constants
 	var c_x float32
 	var c_y float32
-	var m float32
-	var n float32
-	var d float32
+	var delta_x float32
+	var delta_y float32
 	var x_temp float32
 	var y_temp float32
 	var lcount int
@@ -97,14 +96,19 @@ func main() {
 
 	//initializing block
 	fmt.Println("initialize...")
-	c_x, c_y, m, n, d, _, _ = initialize(d, w_x, w_y, starting_randomizer, speed_multipl, tail_len)
+	c_x, c_y, delta_x, delta_y _, _ = initialize(w_x, w_y, starting_randomizer, tail_len)
 
 	go read_keyboard()
 	go left_paddle(w_x, w_y, paddle_len, paddle_speed, paddle_wait_time)
 	go right_paddle(w_x, w_y, paddle_len, paddle_speed, paddle_wait_time)
 
+	c_time = time.Now().UnixMilli()
+
 	//main loop
 	for {
+		e_time = c_time - time.Now().UnixMilli()
+		c_time = time.Now().UnixMilli()
+
 		x_temp = c_x
 		y_temp = c_y
 		gfx.UpdateAus()
@@ -142,7 +146,7 @@ func main() {
 		gfx.SchreibeFont(w_x/2+150, w_y+10, strconv.Itoa(rcount))
 
 		//draw ball
-		c_x, c_y = exe_lin_func(m, n, d, c_x, c_y, w_x, w_y, tail_len)
+		c_x, c_y = exe_lin_func(c_time, c_x, c_y, w_x, w_y, tail_len, delta_x, delta_y)
 		gfx.Vollkreis(uint16(math.Round(float64(c_x))), w_y-uint16(math.Round(float64(c_y))), 10)
 
 		gfx.UpdateAn()
@@ -219,7 +223,7 @@ func Mouse(list [12]sliders.Slider, b1 buttons.Button)  () {
 	}
 }
 //initializing function is executd every time the ball gets out of bounds
-func initialize(d float32, w_x uint16, w_y uint16, starting_randomizer float32, speed_multipl float32, tail_len uint8) (float32, float32, float32, float32, float32, float32, float32) {
+func initialize(w_x uint16, w_y uint16, starting_randomizer float32, tail_len uint8) (float32, float32, float32, float32, float32, float32) {
 	gfx.Transparenz(0)
 	gfx.Stiftfarbe(255, 255, 255)
 	gfx.Vollrechteck(0, 0, w_x, w_y)
@@ -230,18 +234,23 @@ func initialize(d float32, w_x uint16, w_y uint16, starting_randomizer float32, 
 	}
 	var x_temp float32 = 0
 	var y_temp float32 = 0
+	var delta_x float32
+	var delta_y float32
 
 	c_x := float32(w_x) / 2
 	c_y := float32(w_y) / 2
 
 	rand.Seed(time.Now().UTC().UnixNano())
-	m := (-starting_randomizer) + rand.Float32()*(starting_randomizer - -starting_randomizer)
-	n := c_y - (m * c_x)
+	//m := (-starting_randomizer) + rand.Float32()*(starting_randomizer - -starting_randomizer)
+	//n := c_y - (m * c_x)
 
-	if d == 0 {
-		temp := [2]float32{speed_multipl, -speed_multipl}
-		d = (temp[(0 + rand.Intn(2-0))])
-	}
+	//if d == 0 {
+	//	temp := [2]float32{speed_multipl, -speed_multipl}
+	//	d = (temp[(0 + rand.Intn(2-0))])
+	//}
+
+	delta_x = 45
+	delta_y = 30
 
 	// fmt.Println("f(x)=", m, "*x +", n, "|| d=", d)
 
@@ -251,7 +260,7 @@ func initialize(d float32, w_x uint16, w_y uint16, starting_randomizer float32, 
 	gfx.Stiftfarbe(255, 255, 255)
 	gfx.Vollkreis(uint16(math.Round(float64(c_x))), w_y-uint16(math.Round(float64(c_y))), 10)
 
-	return c_x, c_y, m, n, d, x_temp, y_temp
+	return c_x, c_y, delta_x, delta_y, x_temp, y_temp
 }
 //function is relevant for the calculation of the exact position of the pont counter
 func give_digits_of_value(value int) int {
@@ -362,9 +371,9 @@ func right_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16
 	}
 }
 //function to calculated the ext cords
-func exe_lin_func(m float32, n float32, d float32, c_x float32, c_y float32, w_x uint16, w_y uint16, tail_len uint8) (n_x float32, n_y float32) {
-	n_x = c_x + d
-	n_y = m*n_x + n
+func exe_lin_func(e_time float32, x uint16, w_y uint16, tail_len uint8, delta_x, delta_y float32) (n_x float32, n_y float32) {
+	n_x = c_x + delta_x * e_time / 1000
+	n_y = c_y + delta_y * e_time / 1000
 	return n_x, n_y
 }
 
