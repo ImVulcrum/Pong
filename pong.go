@@ -41,7 +41,7 @@ func main() {
 	b1.Draw(50, 600, 70, 30, "Start")
 
 	list := [12]sliders.Slider{s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12}
-	list[0].Draw(50, 70, 300, 20, 10, 6, 2, "Starting Randomizer", false)			//the higher the value the higher the starting randomness of the ball
+	list[0].Draw(50, 70, 300, 20, 10, 6, 2, "Speed", true)			//the higher the value the higher the starting randomness of the ball
 	list[1].Draw(50, 110, 300, 20, 10, 255, 240, "Tail Length", true)				//increases speed when set to 0
 	list[2].Draw(50, 150, 300, 20, 10, 16, 2, "Speed Multiplier", false)			//the higher the value the higher the speed of the ball and the lower the fps
 	list[3].Draw(50, 190, 300, 20, 10, 10, 0, "Waiting Time", true)				//reduces speed when increased
@@ -68,7 +68,7 @@ func main() {
 	time.Sleep(time.Duration(350) * time.Millisecond)
 
 	//starting variables
-	var starting_randomizer float32 = list[0].Value	
+	var speed float32 = int(math.Round(float64(list[0].Value)))
 	var tail_len uint8 = uint8(math.Round(float64(list[1].Value)))
 	var speed_multipl float32 = list[2].Value       	
 	var waiting_time int = int(math.Round(float64(list[3].Value)))      	
@@ -84,8 +84,8 @@ func main() {
 	//starting constants
 	var c_x float32
 	var c_y float32
-	var delta_x float32
-	var delta_y float32
+	var delta_x int
+	var delta_y int
 	var x_temp float32
 	var y_temp float32
 	var lcount int
@@ -95,18 +95,19 @@ func main() {
 	gfx.SetzeFont("pong.ttf", 50)
 
 	//initializing block
-	fmt.Println("initialize...")
-	c_x, c_y, delta_x, delta_y _, _ = initialize(w_x, w_y, starting_randomizer, tail_len)
+	fmt.Println(speed_multipl, y_randomness, x_randomness, reset_randomness, max_randomess)
+	c_x, c_y, delta_x, delta_y, _, _ = initialize(w_x, w_y, speed, tail_len)
 
 	go read_keyboard()
 	go left_paddle(w_x, w_y, paddle_len, paddle_speed, paddle_wait_time)
 	go right_paddle(w_x, w_y, paddle_len, paddle_speed, paddle_wait_time)
 
-	c_time = time.Now().UnixMilli()
+	var c_time int64 = time.Now().UnixMilli()
+	var e_time int64 = time.Now().UnixMilli() - c_time
 
 	//main loop
 	for {
-		e_time = c_time - time.Now().UnixMilli()
+		e_time = time.Now().UnixMilli() - c_time
 		c_time = time.Now().UnixMilli()
 
 		x_temp = c_x
@@ -146,7 +147,7 @@ func main() {
 		gfx.SchreibeFont(w_x/2+150, w_y+10, strconv.Itoa(rcount))
 
 		//draw ball
-		c_x, c_y = exe_lin_func(c_time, c_x, c_y, w_x, w_y, tail_len, delta_x, delta_y)
+		c_x, c_y = exe_lin_func(e_time, c_x, c_y, delta_x, delta_y)
 		gfx.Vollkreis(uint16(math.Round(float64(c_x))), w_y-uint16(math.Round(float64(c_y))), 10)
 
 		gfx.UpdateAn()
@@ -167,27 +168,26 @@ func main() {
 		}
           //check if ball is left outside the field
 		if c_x <= 0 && c_x <= x_temp {
-			d = speed_multipl
-			c_x, c_y, m, n, d, _, _ = initialize(d, w_x, w_y, starting_randomizer, speed_multipl, tail_len)
+			c_x, c_y, delta_x, delta_y, _, _ = initialize(w_x, w_y, starting_randomizer, tail_len)
 			rcount = rcount + 1
 			first = true
           //check if ball is right outside the field
 		} else if c_x >= float32(w_x) && c_x >= x_temp {
-			d = -speed_multipl
-			c_x, c_y, m, n, d, _, _ = initialize(d, w_x, w_y, starting_randomizer, speed_multipl, tail_len)
+			c_x, c_y, delta_x, delta_y, _, _ = initialize(w_x, w_y, starting_randomizer, tail_len)
 			lcount = lcount + 1
 			first = true
           //bounce left paddle
 		} else if c_x -5 <= 20 && c_x <= x_temp && int(w_y)-int(math.Round(float64(c_y))) >= int(left_paddle_y)-8 && w_y-uint16(math.Round(float64(c_y))) <= left_paddle_y+paddle_len+8 {
-			m, n, d = y_bounce(m, n, d, c_x, c_y, speed_multipl, y_randomness, max_randomess, reset_randomness)
+			delta_x = y_bounce(delta_x)
 			first = false
           //bounce right paddle
 		} else if c_x +5 >= float32(w_x)-20 && c_x >= x_temp && int(w_y)-int(math.Round(float64(c_y))) >= int(right_paddle_y)-8 && w_y-uint16(math.Round(float64(c_y))) <= right_paddle_y+paddle_len+8 {
-			m, n, d = y_bounce(m, n, d, c_x, c_y, speed_multipl, y_randomness, max_randomess, reset_randomness)
+			delta_x = y_bounce(delta_x)
 			first = false
           //bounce up/down
 		} else if c_y <= 10 && c_y <= y_temp || c_y >= float32(w_y-10) && c_y >= y_temp {
-			m, n, d = x_bounce(m, n, d, c_x, c_y, x_randomness, max_randomess, reset_randomness)
+			fmt.Println(c_y)
+			delta_y = x_bounce(delta_y)
 		}
 	}
 }
@@ -223,7 +223,7 @@ func Mouse(list [12]sliders.Slider, b1 buttons.Button)  () {
 	}
 }
 //initializing function is executd every time the ball gets out of bounds
-func initialize(w_x uint16, w_y uint16, starting_randomizer float32, tail_len uint8) (float32, float32, float32, float32, float32, float32) {
+func initialize(w_x uint16, w_y uint16, starting_randomizer int, tail_len uint8) (float32, float32, int, int, float32, float32) {
 	gfx.Transparenz(0)
 	gfx.Stiftfarbe(255, 255, 255)
 	gfx.Vollrechteck(0, 0, w_x, w_y)
@@ -234,23 +234,16 @@ func initialize(w_x uint16, w_y uint16, starting_randomizer float32, tail_len ui
 	}
 	var x_temp float32 = 0
 	var y_temp float32 = 0
-	var delta_x float32
-	var delta_y float32
+	var delta_x int
+	var delta_y int
 
 	c_x := float32(w_x) / 2
 	c_y := float32(w_y) / 2
 
 	rand.Seed(time.Now().UTC().UnixNano())
-	//m := (-starting_randomizer) + rand.Float32()*(starting_randomizer - -starting_randomizer)
-	//n := c_y - (m * c_x)
-
-	//if d == 0 {
-	//	temp := [2]float32{speed_multipl, -speed_multipl}
-	//	d = (temp[(0 + rand.Intn(2-0))])
-	//}
-
-	delta_x = 45
-	delta_y = 30
+    delta_x = rand.Intn(starting_randomizer - -starting_randomizer) + -starting_randomizer
+	rand.Seed(time.Now().UTC().UnixNano())
+    delta_y = rand.Intn(starting_randomizer - -starting_randomizer) + -starting_randomizer
 
 	// fmt.Println("f(x)=", m, "*x +", n, "|| d=", d)
 
@@ -371,49 +364,23 @@ func right_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16
 	}
 }
 //function to calculated the ext cords
-func exe_lin_func(e_time float32, x uint16, w_y uint16, tail_len uint8, delta_x, delta_y float32) (n_x float32, n_y float32) {
-	n_x = c_x + delta_x * e_time / 1000
-	n_y = c_y + delta_y * e_time / 1000
+func exe_lin_func(e_time int64, c_x float32, c_y float32, delta_x int, delta_y int) (n_x float32, n_y float32) {
+	//fmt.Println(float32(e_time) / 1000)
+	n_x = c_x + float32(delta_x) * float32(e_time) / 1000
+	n_y = c_y + float32(delta_y) * float32(e_time) / 1000
 	return n_x, n_y
 }
 
-func x_bounce(m float32, n float32, d float32, c_x float32, c_y float32, x_randomness float32, max_randomess float32, reset_randomness float32) (n_m float32, n_n float32, n_d float32) {
-	rand.Seed(time.Now().UTC().UnixNano())
-
-	if m < 0 && m <= -max_randomess {
-		n_m = ((0.1) + rand.Float32()*(reset_randomness-0.1))
-	} else if m > 0 && m >= max_randomess {
-		n_m = -((0.1) + rand.Float32()*(reset_randomness-0.1))
-	} else {
-		n_m = -m + ((-x_randomness) + rand.Float32()*(x_randomness - -x_randomness))
-	}
-
-	n_n = c_y - (n_m * c_x)
-	n_d = d
-
-	return n_m, n_n, n_d
+func x_bounce(delta_y int) (int) {
+	delta_y = - delta_y
+	fmt.Println(delta_y)
+	return delta_y
 }
 
-func y_bounce(m float32, n float32, d float32, c_x float32, c_y float32, speed_multipl float32, y_randomness float32, max_randomess float32, reset_randomness float32) (n_m float32, n_n float32, n_d float32) {
-	rand.Seed(time.Now().UTC().UnixNano())
-
-	if m < 0 && m <= -max_randomess {
-		n_m = ((0.1) + rand.Float32()*(reset_randomness-0.1))
-	} else if m > 0 && m >= max_randomess {
-		n_m = -((0.1) + rand.Float32()*(reset_randomness-0.1))
-	} else {
-		n_m = -m + ((-y_randomness) + rand.Float32()*(y_randomness - -y_randomness))
-	}
-
-	n_n = c_y - (n_m * c_x)
-
-	if d == -speed_multipl {
-		n_d = +speed_multipl
-	} else {
-		n_d = -speed_multipl
-	}
-
-	return n_m, n_n, n_d
+func y_bounce(delta_x int) (int) {
+	delta_x = - delta_x
+	fmt.Println(delta_x)
+	return delta_x
 }
 
 
