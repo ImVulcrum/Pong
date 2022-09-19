@@ -48,9 +48,9 @@ func main() {
 	list[4].Draw(50, 230, 300, 20, 10, 400, 150, "Paddle Length", true)			//the higher the value the longer the paddles (easier)
 	list[5].Draw(50, 270, 300, 20, 10, 16, 2, "Paddle Speed", true)				//the higher the value the faster the movement of the paddles (easier)
 	list[6].Draw(50, 310, 300, 20, 10, 10, 2, "Paddle Wait Time", true)			//the higher the value the slower the paddles
-	list[7].Draw(50, 350, 300, 20, 10, 100, 20, "Y Randomness", true)			//the maximum deviation of the slope (m) on colission with y axis (paddles)
-	list[8].Draw(50, 390, 300, 20, 10, 100, 20, "X Randomness", true)			//the maximum deviation of the slope (m) on colission with x axis (top and bottom)
-	list[9].Draw(50, 430, 300, 20, 10, 100, 35, "Max Delta Y", true)			//the maximum deviation of the slope (m) if the deviation is higher than this value, slope will be randomized to maximal [max_randomess]
+	list[7].Draw(50, 350, 300, 20, 10, 100, 20, "Y Randomness", true)			//sets the maxed randomness of the ball in y direction based on the current delta_y value in percent
+	list[8].Draw(50, 390, 300, 20, 10, 100, 20, "X Randomness", true)			//sets the maxed randomness of the ball in x direction based on the current delta_x value in percent
+	list[9].Draw(50, 430, 300, 20, 10, 100, 35, "Max Delta Y", true)			//sets the max value of delta_y in relation to speed in percent
 	go Mouse(list, b1)
 
 	for !start {
@@ -77,7 +77,6 @@ func main() {
 	var max_delta_y int = int(math.Round(float64(list[9].Value)))   	
 	// var max_randomess float32 = list[10].Value      	
 	                 	
-
 	//starting constants
 	var c_x float32
 	var c_y float32
@@ -194,6 +193,7 @@ func main() {
 		}
 	}
 }
+
 //function to read the mouse - only relevant for the settings menu
 func Mouse(list [10]sliders.Slider, b1 buttons.Button)  () {
 	var m_x uint16
@@ -225,6 +225,7 @@ func Mouse(list [10]sliders.Slider, b1 buttons.Button)  () {
 			}
 	}
 }
+
 //initializing function is executd every time the ball gets out of bounds
 func initialize(w_x uint16, w_y uint16, speed int, tail_len uint8) (float32, float32, int, int) {
 	gfx.Transparenz(0)
@@ -260,6 +261,7 @@ func initialize(w_x uint16, w_y uint16, speed int, tail_len uint8) (float32, flo
 	gfx.Vollkreis(uint16(math.Round(float64(c_x))), w_y-uint16(math.Round(float64(c_y))), 10)
 	return c_x, c_y, delta_x, delta_y
 }
+
 //function is relevant for the calculation of the exact position of the point counter
 func give_digits_of_value(value int) int {
 	count := 0
@@ -272,6 +274,7 @@ func give_digits_of_value(value int) int {
 	}
 	return count
 }
+
 //function will be executed when the win_count == lcount or rcount
 func win(winner string, w_x uint16, w_y uint16) {
 	var r uint8
@@ -297,6 +300,7 @@ func win(winner string, w_x uint16, w_y uint16) {
 		time.Sleep(time.Duration(200) * time.Millisecond)
 	}
 }
+
 //function is responsible for reading the keyboard which means it is also responsible for controlling the paddles
 func read_keyboard() {
 	var kn uint16
@@ -312,6 +316,7 @@ func read_keyboard() {
 		}
 	}
 }
+
 //controlling the left paddle
 func left_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16, paddle_wait_time int) {
 	left_paddle_x = 10
@@ -340,6 +345,7 @@ func left_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16,
 		}
 	}
 }
+
 //controlling the right paddle
 func right_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16, paddle_wait_time int) {
 	right_paddle_x = w_x - 20
@@ -368,9 +374,9 @@ func right_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16
 		}
 	}
 }
-//function to calculated the ext cords
+
+//function to calculate the next cords
 func exe_lin_func(e_time int64, c_x float32, c_y float32, delta_x int, delta_y int) (float32, float32) {
-	//fmt.Println(float32(e_time) / 1000)
 	c_x = c_x + float32(delta_x) * float32(e_time) / 1000
 	c_y = c_y + float32(delta_y) * float32(e_time) / 1000
 	return c_x, c_y
@@ -432,10 +438,4 @@ func y_bounce(delta_x int, delta_y int, x_randomness int, speed int, max_delta_y
 	return delta_x, delta_y
 }
 
-
-//feature:  -Ball wird schneller mit zunehmenden bounces        Slider Geschwindigkeitzunahme in Prozent
-//          -Ball kann angeschnitten werden                     Slider Anschneidungsstärke in Prozent
-
-//bug:
-//          -Ball ist unterschiedlich schnell wenn sich die Funktion in y Richtung schneller bewegt als in x Richtung (m < 1 && m > -1)
-//          -Ballgeschwindigkeit ist von der Stärke des Systems abhängig auf dem pong ausgeführt wird --> daher main loop muss zeitabhängig sein
+//feature: -Ball kann angeschnitten werden      Slider Anschneidungsstärke in Prozent
