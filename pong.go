@@ -3,7 +3,7 @@ package main
 import (
 	"buttons"
 	"fmt"
-	gfx "gfx2"
+	gfx "gfx"
 	"math"
 	"math/rand"
 	"sliders"
