@@ -1,15 +1,16 @@
 package main
 
 import (
-	"buttons"
 	"fmt"
-	gfx "gfx2"
 	"math"
 	"math/rand"
-	"sliders"
 	"strconv"
 	"sync"
 	"time"
+
+	"./buttons"
+	gfx "./gfxw"
+	"./sliders"
 )
 
 var left_paddle_x uint16 = 0
@@ -26,31 +27,42 @@ var m sync.Mutex
 var start bool = false
 
 func main() {
-	
-	var w_x uint16 = 950                	//window lenght --> the bigger the window the slower the ball speed
-	var w_y uint16 = 680                	//window hight --> the bigger the window the slower the ball speed
-	
+
+	var w_x uint16 = 950 //window lenght --> the bigger the window the slower the ball speed
+	var w_y uint16 = 680 //window hight --> the bigger the window the slower the ball speed
+
 	gfx.Fenster(w_x, w_y+70)
 	gfx.SetzeFont("pong.ttf", 20)
+	gfx.Fenstertitel("Pong")
 
 	gfx.Stiftfarbe(0, 0, 0)
 	gfx.Vollrechteck(0, 0, w_x, w_y+70)
 
-	var s1, s2, s3, s4, s5, s6, s7, s8, s9, s10 sliders.Slider = *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New(), *sliders.New()
-	var b1 buttons.Button = *buttons.New()
-	b1.Draw(50, 600, 70, 30, "Start")
+	var s1, s2, s3, s4, s5, s6, s7, s8, s9, s10 sliders.Slider = sliders.New(50, 70, 300, 20, 10, 0, 2000, 600, "Speed", true, [3]uint8{88, 88, 88}, [3]uint8{255, 255, 255}, [3]uint8{0, 0, 0}),
+		sliders.New(50, 110, 300, 20, 10, 0, 255, 240, "Tail Length", true, [3]uint8{88, 88, 88}, [3]uint8{255, 255, 255}, [3]uint8{0, 0, 0}),
+		sliders.New(50, 150, 300, 20, 10, 0, 200, 10, "Speed Increase", true, [3]uint8{88, 88, 88}, [3]uint8{255, 255, 255}, [3]uint8{0, 0, 0}),
+		sliders.New(50, 190, 300, 20, 10, 0, 100, 10, "Win Count", true, [3]uint8{88, 88, 88}, [3]uint8{255, 255, 255}, [3]uint8{0, 0, 0}),
+		sliders.New(50, 230, 300, 20, 10, 0, 400, 150, "Paddle Length", true, [3]uint8{88, 88, 88}, [3]uint8{255, 255, 255}, [3]uint8{0, 0, 0}),
+		sliders.New(50, 270, 300, 20, 10, 0, 16, 2, "Paddle Speed", true, [3]uint8{88, 88, 88}, [3]uint8{255, 255, 255}, [3]uint8{0, 0, 0}),
+		sliders.New(50, 310, 300, 20, 10, 0, 10, 2, "Paddle Wait Time", true, [3]uint8{88, 88, 88}, [3]uint8{255, 255, 255}, [3]uint8{0, 0, 0}),
+		sliders.New(50, 350, 300, 20, 10, 0, 100, 20, "Y Randomness", true, [3]uint8{88, 88, 88}, [3]uint8{255, 255, 255}, [3]uint8{0, 0, 0}),
+		sliders.New(50, 390, 300, 20, 10, 0, 100, 20, "X Randomness", true, [3]uint8{88, 88, 88}, [3]uint8{255, 255, 255}, [3]uint8{0, 0, 0}),
+		sliders.New(50, 430, 300, 20, 10, 0, 100, 35, "Max Delta Y", true, [3]uint8{88, 88, 88}, [3]uint8{255, 255, 255}, [3]uint8{0, 0, 0})
+
+	var b1 buttons.Button = buttons.New(50, 600, 70, 30, "Start", 195, 195, 195, 88, 88, 88, 5, 20)
+	b1.Draw()
 
 	list := [10]sliders.Slider{s1, s2, s3, s4, s5, s6, s7, s8, s9, s10}
-	list[0].Draw(50, 70, 300, 20, 10, 2000, 600, "Speed", true)					//indicates how many pixels per secod the ball should move
-	list[1].Draw(50, 110, 300, 20, 10, 255, 240, "Tail Length", true)			//indicates how long the tail of the ball will be
-	list[2].Draw(50, 150, 300, 20, 10, 200, 10, "Speed Increase", true)			//indicates which number is added to the global speed every time a player scores
-	list[3].Draw(50, 190, 300, 20, 10, 100, 10, "Win Count", true)				//indicates up to how many points are played
-	list[4].Draw(50, 230, 300, 20, 10, 400, 150, "Paddle Length", true)			//the higher the value the longer the paddles (easier)
-	list[5].Draw(50, 270, 300, 20, 10, 16, 2, "Paddle Speed", true)				//the higher the value the faster the movement of the paddles (easier)
-	list[6].Draw(50, 310, 300, 20, 10, 10, 2, "Paddle Wait Time", true)			//the higher the value the slower the paddles
-	list[7].Draw(50, 350, 300, 20, 10, 100, 20, "Y Randomness", true)			//sets the maxed randomness of the ball in y direction based on the current delta_y value in percent
-	list[8].Draw(50, 390, 300, 20, 10, 100, 20, "X Randomness", true)			//sets the maxed randomness of the ball in x direction based on the current delta_x value in percent
-	list[9].Draw(50, 430, 300, 20, 10, 100, 35, "Max Delta Y", true)			//sets the max value of delta_y in relation to speed in percent
+	list[0].Draw() //indicates how many pixels per secod the ball should move
+	list[1].Draw() //indicates how long the tail of the ball will be
+	list[2].Draw() //indicates which number is added to the global speed every time a player scores
+	list[3].Draw() //indicates up to how many points are played
+	list[4].Draw() //the higher the value the longer the paddles (easier)
+	list[5].Draw() //the higher the value the faster the movement of the paddles (easier)
+	list[6].Draw() //the higher the value the slower the paddles
+	list[7].Draw() //sets the maxed randomness of the ball in y direction based on the current delta_y value in percent
+	list[8].Draw() //sets the maxed randomness of the ball in x direction based on the current delta_x value in percent
+	list[9].Draw() //sets the max value of delta_y in relation to speed in percent
 	go Mouse(list, b1)
 
 	for !start {
@@ -61,22 +73,22 @@ func main() {
 		}
 	}
 
-	b1.Click()
+	//b1.Click()
 	time.Sleep(time.Duration(350) * time.Millisecond)
 
 	//starting variables
-	var speed int = int(math.Round(float64(list[0].Value)))
-	var tail_len uint8 = uint8(math.Round(float64(list[1].Value)))  
-	var speed_inc int = int(math.Round(float64(list[2].Value))) 
-	var win_count int = int(math.Round(float64(list[3].Value)))
-	var paddle_len uint16 = uint16(math.Round(float64(list[4].Value)))        	
-	var paddle_speed uint16 = uint16(math.Round(float64(list[5].Value)))          	
-	var paddle_wait_time int = int(math.Round(float64(list[6].Value)))  	
-	var y_randomness int = int(math.Round(float64(list[7].Value)))     	
-	var x_randomness int = int(math.Round(float64(list[8].Value)))      	
-	var max_delta_y int = int(math.Round(float64(list[9].Value)))   	
-	// var max_randomess float32 = list[10].Value      	
-	                 	
+	var speed int = int(math.Round(float64(list[0].Get_Value())))
+	var tail_len uint8 = uint8(math.Round(float64(list[1].Get_Value())))
+	var speed_inc int = int(math.Round(float64(list[2].Get_Value())))
+	var win_count int = int(math.Round(float64(list[3].Get_Value())))
+	var paddle_len uint16 = uint16(math.Round(float64(list[4].Get_Value())))
+	var paddle_speed uint16 = uint16(math.Round(float64(list[5].Get_Value())))
+	var paddle_wait_time int = int(math.Round(float64(list[6].Get_Value())))
+	var y_randomness int = int(math.Round(float64(list[7].Get_Value())))
+	var x_randomness int = int(math.Round(float64(list[8].Get_Value())))
+	var max_delta_y int = int(math.Round(float64(list[9].Get_Value())))
+	// var max_randomess float32 = list[10].Value
+
 	//starting constants
 	var c_x float32
 	var c_y float32
@@ -88,7 +100,7 @@ func main() {
 	var rcount int
 	var first bool = true
 
-	gfx.SetzeFont("pong.ttf", 50)
+	gfx.SetzeFont("./fonts/pong.ttf", 50)
 
 	//initializing block
 	fmt.Println("initialize")
@@ -147,21 +159,21 @@ func main() {
 		//draw ball
 		if first {
 			c_x, c_y = exe_lin_func(e_time, c_x, c_y, delta_x/2, delta_y/2)
-		}	else {
+		} else {
 			c_x, c_y = exe_lin_func(e_time, c_x, c_y, delta_x, delta_y)
-			}
+		}
 		gfx.Vollkreis(uint16(math.Round(float64(c_x))), w_y-uint16(math.Round(float64(c_y))), 10)
 
 		gfx.UpdateAn()
-        
-          //check win
+
+		//check win
 		if lcount >= win_count {
 			win("Player 1", w_x, w_y)
 		} else if rcount >= win_count {
 			win("Player 2", w_x, w_y)
 		}
 
-          //check if ball is left outside the field
+		//check if ball is left outside the field
 		if c_x <= 0 && c_x <= x_temp {
 			c_x, c_y, delta_x, delta_y = initialize(w_x, w_y, speed, tail_len)
 			rcount = rcount + 1
@@ -169,7 +181,7 @@ func main() {
 			speed = speed + speed_inc
 			c_time = time.Now().UnixMilli()
 
-          //check if ball is right outside the field
+			//check if ball is right outside the field
 		} else if c_x >= float32(w_x) && c_x >= x_temp {
 			c_x, c_y, delta_x, delta_y = initialize(w_x, w_y, speed, tail_len)
 			lcount = lcount + 1
@@ -177,56 +189,56 @@ func main() {
 			speed = speed + speed_inc
 			c_time = time.Now().UnixMilli()
 
-          //bounce left paddle
-		} else if c_x -5 <= 20 && c_x <= x_temp && int(w_y)-int(math.Round(float64(c_y))) >= int(left_paddle_y)-8 && w_y-uint16(math.Round(float64(c_y))) <= left_paddle_y+paddle_len+8 {
+			//bounce left paddle
+		} else if c_x-5 <= 20 && c_x <= x_temp && int(w_y)-int(math.Round(float64(c_y))) >= int(left_paddle_y)-8 && w_y-uint16(math.Round(float64(c_y))) <= left_paddle_y+paddle_len+8 {
 			delta_x, delta_y = y_bounce(delta_x, delta_y, x_randomness, speed, max_delta_y)
 			first = false
 
-          //bounce right paddle
-		} else if c_x +5 >= float32(w_x)-20 && c_x >= x_temp && int(w_y)-int(math.Round(float64(c_y))) >= int(right_paddle_y)-8 && w_y-uint16(math.Round(float64(c_y))) <= right_paddle_y+paddle_len+8 {
+			//bounce right paddle
+		} else if c_x+5 >= float32(w_x)-20 && c_x >= x_temp && int(w_y)-int(math.Round(float64(c_y))) >= int(right_paddle_y)-8 && w_y-uint16(math.Round(float64(c_y))) <= right_paddle_y+paddle_len+8 {
 			delta_x, delta_y = y_bounce(delta_x, delta_y, x_randomness, speed, max_delta_y)
 			first = false
 
-          //bounce up/down
+			//bounce up/down
 		} else if c_y <= 10 && c_y <= y_temp || c_y >= float32(w_y-10) && c_y >= y_temp {
 			delta_x, delta_y = x_bounce(delta_y, delta_x, y_randomness, speed, max_delta_y)
 		}
 	}
 }
 
-//function to read the mouse - only relevant for the settings menu
-func Mouse(list [10]sliders.Slider, b1 buttons.Button)  () {
+// function to read the mouse - only relevant for the settings menu
+func Mouse(list [10]sliders.Slider, b1 buttons.Button) {
 	var m_x uint16
 	var m_y uint16
 	var ms_bttn uint8
 	var ms_prssd int8
-	for !start{
+	for !start {
 		ms_bttn, ms_prssd, m_x, m_y = gfx.MausLesen1()
 
-		if ms_bttn == 1 && ms_prssd == 1 || ms_bttn == 1 && ms_prssd == 0 	{
+		if ms_bttn == 1 && ms_prssd == 1 || ms_bttn == 1 && ms_prssd == 0 {
 			ms_x = m_x
 			if active == -1 {
-				if m_x >= b1.X && m_x <= b1.X + b1.Length && m_y >= b1.Y && m_y <= b1.Y + b1.Height {
+				if b1.Is_Clicked(m_x, m_y) {
 					start = true
-				}	else {
-						for i := 0; i < len(list); i++ {
-							if m_x >= list[i].X && m_x <= list[i].X + list[i].Length && m_y >= list[i].Y && m_y <= list[i].Y + list[i].Height {
-								m.Lock()
-								active = i
-								m.Unlock()
-							}			
+				} else {
+					for i := 0; i < len(list); i++ {
+						if list[i].Is_Clicked(m_x, m_y) {
+							m.Lock()
+							active = i
+							m.Unlock()
 						}
 					}
+				}
 			}
-		}	else {
-				m.Lock()
-				active = -1
-				m.Unlock()
-			}
+		} else {
+			m.Lock()
+			active = -1
+			m.Unlock()
+		}
 	}
 }
 
-//initializing function is executd every time the ball gets out of bounds
+// initializing function is executd every time the ball gets out of bounds
 func initialize(w_x uint16, w_y uint16, speed int, tail_len uint8) (float32, float32, int, int) {
 	gfx.Transparenz(0)
 	gfx.Stiftfarbe(255, 255, 255)
@@ -243,16 +255,16 @@ func initialize(w_x uint16, w_y uint16, speed int, tail_len uint8) (float32, flo
 	c_y := float32(w_y) / 2
 
 	rand.Seed(time.Now().UTC().UnixNano())
-    delta_x = rand.Intn(speed - speed/2) + speed/2
-    rand.Seed(time.Now().UTC().UnixNano())
-    if rand.Intn(2) == 0 {
-        delta_x = -1*delta_x
-    }
+	delta_x = rand.Intn(speed-speed/2) + speed/2
+	rand.Seed(time.Now().UTC().UnixNano())
+	if rand.Intn(2) == 0 {
+		delta_x = -1 * delta_x
+	}
 	delta_y = (speed) - int(math.Abs(float64(delta_x)))
-    rand.Seed(time.Now().UTC().UnixNano()*time.Now().UTC().UnixNano())
-    if rand.Intn(2) == 0 {
-        delta_y = -1*delta_y
-    }
+	rand.Seed(time.Now().UTC().UnixNano() * time.Now().UTC().UnixNano())
+	if rand.Intn(2) == 0 {
+		delta_y = -1 * delta_y
+	}
 
 	gfx.Transparenz(0)
 	gfx.Stiftfarbe(0, 0, 0)
@@ -262,7 +274,7 @@ func initialize(w_x uint16, w_y uint16, speed int, tail_len uint8) (float32, flo
 	return c_x, c_y, delta_x, delta_y
 }
 
-//function is relevant for the calculation of the exact position of the point counter
+// function is relevant for the calculation of the exact position of the point counter
 func give_digits_of_value(value int) int {
 	count := 0
 	for value > 0 {
@@ -275,7 +287,7 @@ func give_digits_of_value(value int) int {
 	return count
 }
 
-//function will be executed when the win_count == lcount or rcount
+// function will be executed when the win_count == lcount or rcount
 func win(winner string, w_x uint16, w_y uint16) {
 	var r uint8
 	var g uint8
@@ -301,7 +313,7 @@ func win(winner string, w_x uint16, w_y uint16) {
 	}
 }
 
-//function is responsible for reading the keyboard which means it is also responsible for controlling the paddles
+// function is responsible for reading the keyboard which means it is also responsible for controlling the paddles
 func read_keyboard() {
 	var kn uint16
 	var prssd uint8
@@ -317,7 +329,7 @@ func read_keyboard() {
 	}
 }
 
-//controlling the left paddle
+// controlling the left paddle
 func left_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16, paddle_wait_time int) {
 	left_paddle_x = 10
 
@@ -346,7 +358,7 @@ func left_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16,
 	}
 }
 
-//controlling the right paddle
+// controlling the right paddle
 func right_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16, paddle_wait_time int) {
 	right_paddle_x = w_x - 20
 
@@ -375,29 +387,29 @@ func right_paddle(w_x uint16, w_y uint16, paddle_len uint16, paddle_speed uint16
 	}
 }
 
-//function to calculate the next cords
+// function to calculate the next cords
 func exe_lin_func(e_time int64, c_x float32, c_y float32, delta_x int, delta_y int) (float32, float32) {
-	c_x = c_x + float32(delta_x) * float32(e_time) / 1000
-	c_y = c_y + float32(delta_y) * float32(e_time) / 1000
+	c_x = c_x + float32(delta_x)*float32(e_time)/1000
+	c_y = c_y + float32(delta_y)*float32(e_time)/1000
 	return c_x, c_y
 }
 
 func x_bounce(delta_y int, delta_x int, y_randomness int, speed int, max_delta_y int) (int, int) {
 	fmt.Println("x axe bounce -------- delta_y =", delta_y, "--- delta_x =", delta_x)
 
-	delta_y = - delta_y
+	delta_y = -delta_y
 	y_max_random := y_randomness * int(math.Abs(float64(delta_y))) / 100
 	rand.Seed(time.Now().UTC().UnixNano())
-	r_add := rand.Intn(y_max_random - -y_max_random) -y_max_random
+	r_add := rand.Intn(y_max_random - -y_max_random) - y_max_random
 
-	if int(math.Abs(float64(delta_y + r_add))) > max_delta_y * speed / 100 {
-		if int(math.Abs(float64(delta_y + r_add))) > int(math.Abs(float64(delta_y - r_add)))	{
-			r_add = -1*r_add
+	if int(math.Abs(float64(delta_y+r_add))) > max_delta_y*speed/100 {
+		if int(math.Abs(float64(delta_y+r_add))) > int(math.Abs(float64(delta_y-r_add))) {
+			r_add = -1 * r_add
 		}
 	}
 
-	if delta_y + r_add >= speed || delta_y + r_add <= -speed{
-		r_add = -1*r_add
+	if delta_y+r_add >= speed || delta_y+r_add <= -speed {
+		r_add = -1 * r_add
 	}
 
 	delta_y = delta_y + r_add
@@ -413,19 +425,19 @@ func x_bounce(delta_y int, delta_x int, y_randomness int, speed int, max_delta_y
 func y_bounce(delta_x int, delta_y int, x_randomness int, speed int, max_delta_y int) (int, int) {
 	fmt.Println("y axe bounce -------- delta_x =", delta_x, "--- delta_y =", delta_y)
 
-	delta_x = - delta_x
+	delta_x = -delta_x
 	x_max_random := x_randomness * int(math.Abs(float64(delta_x))) / 100
 	rand.Seed(time.Now().UTC().UnixNano())
-	r_add := rand.Intn(x_max_random - -x_max_random) -x_max_random
+	r_add := rand.Intn(x_max_random - -x_max_random) - x_max_random
 
-	if int(math.Abs(float64(delta_x + r_add))) < (100-max_delta_y) * speed / 100 {
-		if int(math.Abs(float64(delta_x + r_add))) < int(math.Abs(float64(delta_x - r_add)))	{
-			r_add = -1*r_add
+	if int(math.Abs(float64(delta_x+r_add))) < (100-max_delta_y)*speed/100 {
+		if int(math.Abs(float64(delta_x+r_add))) < int(math.Abs(float64(delta_x-r_add))) {
+			r_add = -1 * r_add
 		}
 	}
 
-	if delta_x + r_add >= speed || delta_x + r_add <= -speed{
-		r_add = -1*r_add
+	if delta_x+r_add >= speed || delta_x+r_add <= -speed {
+		r_add = -1 * r_add
 	}
 
 	delta_x = delta_x + r_add
@@ -433,7 +445,7 @@ func y_bounce(delta_x int, delta_y int, x_randomness int, speed int, max_delta_y
 	var s_y int = delta_y / int(math.Abs(float64(delta_y)))
 	delta_y = speed - int(math.Abs(float64(delta_x)))
 	delta_y = delta_y * s_y
-	
+
 	fmt.Println("after calculation --- delta_x =", delta_x, "--- delta_y =", delta_y)
 	return delta_x, delta_y
 }
